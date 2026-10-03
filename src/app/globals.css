@@ -1,0 +1,128 @@
+/* The sketchbook: watercolour paper, charcoal, and the paint box. */
+
+:root {
+  --paper: #f5f0e6;
+  --fg: #1d1d21;
+  --accent-2: #c8233f;
+  --gutter: clamp(20px, 4.4vw, 76px);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: var(--paper);
+  color: var(--fg);
+  font-family: var(--font-hand), cursive;
+}
+
+main {
+  position: fixed;
+  inset: 0;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+canvas {
+  display: block;
+  max-width: 100%;
+}
+
+html.has-custom-cursor,
+html.has-custom-cursor * {
+  cursor: none !important;
+}
+
+/*
+  The brush. Its tip is the pointer: the brush is drawn into its own little
+  canvas with the tip near its bottom-left corner (4px in, 4px up), and
+  the canvas is placed so that corner sits on the pointer.
+*/
+.cursor-wash {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 99999;
+  pointer-events: none;
+  /* Paint on paper: the wash darkens what is under it and never covers it. */
+  mix-blend-mode: multiply;
+}
+.cursor-brush {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 100000;
+  pointer-events: none;
+  opacity: 0;
+  will-change: transform;
+}
+.cursor-brush__lean {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform-origin: 0 0;
+  transition: opacity 0.15s;
+}
+/* Its size is pinned: the site-wide `canvas { max-width: 100% }` would resolve against the 0px-wide wrapper. */
+.cursor-brush__body {
+  position: absolute;
+  left: -4px;
+  top: -46px;
+  width: 76px;
+  height: 50px;
+  max-width: none;
+  transform-origin: 4px 46px;
+  transition: transform 0.35s var(--ease-out);
+  filter: drop-shadow(2px 3px 2px rgba(60, 45, 20, 0.18));
+}
+/* Over something that does something, the brush lifts a little and leans in to paint. */
+.cursor-brush.is-active .cursor-brush__body {
+  transform: rotate(-12deg) scale(1.1);
+}
+/* Over text it steps aside, and the caret takes its place. */
+.cursor-brush.is-away .cursor-brush__lean,
+.cursor-brush.is-away .cursor-brush__label {
+  opacity: 0;
+}
+/* Pressing: the brush presses down onto the paper. */
+.cursor-brush.is-pressed .cursor-brush__body {
+  transform: rotate(-4deg) scale(0.94);
+  transition-duration: 0.12s;
+}
+.cursor-brush__label {
+  position: absolute;
+  left: 14px;
+  top: 10px;
+  white-space: nowrap;
+  font-family: var(--font-hand), cursive;
+  font-size: 21px;
+  line-height: 1;
+  color: var(--fg);
+  padding: 0 2px 3px;
+  background: rgba(251, 248, 241, 0.92);
+  border-radius: 3px;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 0.2s, transform 0.3s var(--ease-out);
+}
+.cursor-brush.is-labelled .cursor-brush__label {
+  opacity: 1;
+  transform: none;
+}
+

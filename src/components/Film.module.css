@@ -1,0 +1,185 @@
+/*
+  The film fills the first screen. The canvas is transparent: the page's
+  painted ground is the painting's paper.
+*/
+.film {
+  position: relative;
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+  color: var(--fg);
+  transition: color 1.2s;
+}
+.film[data-film-dark] {
+  color: #f3eee2;
+}
+
+.canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* One line, written in the corner as under a painting. */
+.plate {
+  position: absolute;
+  right: var(--gutter);
+  bottom: clamp(62px, 9vh, 92px);
+  text-align: right;
+  pointer-events: none;
+}
+/* The line coming in and the one lifting off share one place. */
+.caption {
+  display: grid;
+  justify-items: end;
+  align-items: end;
+  margin: 0;
+  /* Written as a painting's title is under it: small, light, in softened ink, not underlined. */
+  font-family: var(--font-hand), cursive;
+  font-weight: 600;
+  font-size: clamp(20px, 1.7vw, 26px);
+  line-height: 1.1;
+  min-height: 1.1em;
+}
+.line {
+  grid-area: 1 / 1;
+  display: inline-flex;
+  align-items: center;
+}
+.captionText {
+  display: inline-block;
+  opacity: 0.75;
+  /* Written in just after the last line starts to lift. */
+  animation: write 0.9s var(--ease-out) 0.25s both;
+}
+/* The line going: it lifts off the paper, as a wash does under a damp sponge. */
+.leaving {
+  animation: lift 0.6s ease-out both;
+}
+.leaving .captionText {
+  animation: none;
+}
+@keyframes lift {
+  to {
+    opacity: 0;
+    filter: blur(2px);
+    transform: translateY(-6px);
+  }
+}
+/* The heart, painted beside the place once it has been written. */
+.heart,
+.heartRoom {
+  display: inline-block;
+  flex: none;
+  width: 0.95em;
+  height: 0.95em;
+  margin-left: 0.18em;
+}
+@keyframes write {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+/* The shots along the bottom, and the pause. */
+.controls {
+  position: absolute;
+  left: var(--gutter);
+  right: var(--gutter);
+  bottom: clamp(16px, 3vh, 28px);
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+}
+.strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 18px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.shot,
+.pause {
+  position: relative;
+  padding: 4px 0 7px;
+  border: 0;
+  background: none;
+  color: inherit;
+  font-family: var(--font-hand), cursive;
+  font-size: clamp(17px, 1.3vw, 21px);
+  line-height: 1;
+  opacity: 0.6;
+  cursor: pointer;
+  transition: opacity 0.3s;
+}
+.shot:hover,
+.shot:focus-visible,
+.pause:hover,
+.pause:focus-visible,
+.shot[aria-pressed='true'] {
+  opacity: 1;
+}
+/* The shot on screen is underlined as far as it has got. */
+.shot[aria-pressed='true']::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 2px;
+  height: 1.5px;
+  width: calc(var(--p, 0) * 100%);
+  background: var(--accent-2);
+}
+.film[data-film-dark] .shot[aria-pressed='true']::after {
+  background: #ffcf7a;
+}
+.pause {
+  flex: none;
+  opacity: 0.75;
+}
+
+@media (max-width: 720px) {
+  .plate {
+    bottom: 64px;
+  }
+  .strip {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+    gap: 14px;
+    mask-image: linear-gradient(90deg, #000 85%, transparent);
+  }
+  .strip::-webkit-scrollbar {
+    display: none;
+  }
+  .shot {
+    white-space: nowrap;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .captionText {
+    animation: none;
+  }
+  .leaving {
+    display: none;
+  }
+}
+
+/*
+  The painting's own sheet: a cold-pressed white a shade cooler than the
+  book's pages.
+*/
+.film::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--paper);
+  pointer-events: none;
+}
